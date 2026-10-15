@@ -2,7 +2,7 @@
 
 農林水産省「作物統計調査」（2020〜2026年産）に基づく主食用米の収穫量・需要・民間在庫・相対取引価格の推移と、2040年に向けた中長期試算（農林水産省の需要トレンド試算、全米販「米穀流通2040ビジョン」）を1ページにまとめた静的サイトです。
 
-- 公開ページ: https://katzkawai.github.io/kklab-japan-rice-yield-forecast/
+- 公開ページ: https://katzkawai.org/kklab-japan-rice-yield-forecast/ （GitHub Pages。https://katzkawai.github.io/kklab-japan-rice-yield-forecast/ からもリダイレクトされます）
 - 構成: `index.html` のみ（Chart.js 4.4.1 を CDN から読み込み）。ビルド不要で、ファイルをブラウザで開けば表示できます。
 
 ## 主なデータ
