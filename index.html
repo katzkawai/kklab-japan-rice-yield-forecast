@@ -151,8 +151,11 @@
     td.year { white-space: nowrap; font-weight: 600; }
     .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     td.note { min-width: 15rem; font-size: 0.85rem; color: var(--text-secondary); }
-    table.tbl-compact { font-size: 0.86rem; }
-    table.tbl-compact th, table.tbl-compact td { padding: 0.55rem 0.6rem; }
+    table.tbl-compact { font-size: 0.84rem; }
+    table.tbl-compact th, table.tbl-compact td { padding: 0.5rem 0.5rem; }
+    table.tbl-compact th { white-space: normal; font-size: 0.76rem; }
+    table.tbl-compact td.year { white-space: normal; min-width: 5.5rem; }
+    table.tbl-compact td.note { min-width: 15rem; }
     td.src { font-weight: 600; min-width: 11rem; }
     td.src .small { font-weight: 400; display: block; }
     td.ind { min-width: 10rem; }
@@ -285,8 +288,8 @@
           <thead>
             <tr>
               <th>年産</th>
-              <th class="num">主食用<br>作付面積（万ha）</th>
-              <th class="num">単収（kg/10a）<br>生産者基準／1.70mm</th>
+              <th class="num">主食用<br>作付面積<br>（万ha）</th>
+              <th class="num">単収（kg/10a）<br>生産者／1.70mm</th>
               <th class="num">収穫量（万t）<br>生産者基準</th>
               <th class="num">収穫量（万t）<br>1.70mm</th>
               <th class="num">作況<br>単収指数</th>
