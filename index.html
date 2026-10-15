@@ -149,6 +149,7 @@
     th { background-color: var(--surface-2); font-weight: 700; color: var(--text-secondary); white-space: nowrap; font-size: 0.82rem; line-height: 1.4; }
     tbody tr:hover td { background-color: var(--surface-2); }
     td.year { white-space: nowrap; font-weight: 600; }
+    td.year .era { display: block; font-weight: 400; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
     .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     td.note { min-width: 15rem; font-size: 0.85rem; color: var(--text-secondary); }
     table.tbl-compact { font-size: 0.84rem; }
@@ -298,7 +299,7 @@
           </thead>
           <tbody>
             <tr>
-              <td class="year">2020年（令和2年）</td>
+              <td class="year">2020年<span class="era">（令和2年）</span></td>
               <td class="num">136.6</td>
               <td class="num">508／531</td>
               <td class="num">690.6</td>
@@ -307,7 +308,7 @@
               <td class="note">コロナ禍で外食需要が減少。在庫が積み上がり、米価は下落</td>
             </tr>
             <tr>
-              <td class="year">2021年（令和3年）</td>
+              <td class="year">2021年<span class="era">（令和3年）</span></td>
               <td class="num">130.3</td>
               <td class="num">515／539</td>
               <td class="num">669.8</td>
@@ -316,7 +317,7 @@
               <td class="note">過剰在庫を受け、主食用から飼料用米・備蓄米等への大幅な作付転換（主食用作付面積は▲6.3万ha）</td>
             </tr>
             <tr>
-              <td class="year">2022年（令和4年）</td>
+              <td class="year">2022年<span class="era">（令和4年）</span></td>
               <td class="num">125.1</td>
               <td class="num">511／536</td>
               <td class="num">639.0</td>
@@ -325,7 +326,7 @@
               <td class="note">作付面積の縮小が続き、収穫量は670万t台へ</td>
             </tr>
             <tr>
-              <td class="year">2023年（令和5年）</td>
+              <td class="year">2023年<span class="era">（令和5年）</span></td>
               <td class="num">124.2</td>
               <td class="num">515／533</td>
               <td class="num">639.0</td>
@@ -334,7 +335,7 @@
               <td class="note">猛暑による高温障害で一等米比率と精米歩留まりが低下。需要は増加に転じ、2024年夏の端境期に品薄へ</td>
             </tr>
             <tr>
-              <td class="year">2024年（令和6年）</td>
+              <td class="year">2024年<span class="era">（令和6年）</span></td>
               <td class="num">125.9</td>
               <td class="num">519／540</td>
               <td class="num">651.9</td>
@@ -343,7 +344,7 @@
               <td class="note">1.70mmベースで前年比+18.2万tも、集荷競争の激化で価格が高騰。2024年6月末の民間在庫は153万tと低水準</td>
             </tr>
             <tr>
-              <td class="year">2025年（令和7年）</td>
+              <td class="year">2025年<span class="era">（令和7年）</span></td>
               <td class="num">136.7</td>
               <td class="num">526／547</td>
               <td class="num">718.1</td>
@@ -352,7 +353,7 @@
               <td class="note">高米価を受けた主食用への作付回帰（+10.8万ha）で大幅増産。2017年産以来の高水準</td>
             </tr>
             <tr>
-              <td class="year">2026年（令和8年）<span class="badge badge-forecast">予想</span></td>
+              <td class="year">2026年<span class="badge badge-forecast">予想</span><span class="era">（令和8年）</span></td>
               <td class="num">136.0</td>
               <td class="num">524／546</td>
               <td class="num"><strong>710.5</strong></td>
@@ -518,12 +519,12 @@
       var harvestProducer = [
         { x: 2020, y: 690.6 }, { x: 2021, y: 669.8 }, { x: 2022, y: 639.0 }, { x: 2023, y: 639.0 },
         { x: 2024, y: 651.9 }, { x: 2025, y: 718.1 },
-        { x: 2026, y: 710.5, forecast: true, note: '9月25日現在の予想', lbl: '710.5', lblPos: 'right' }
+        { x: 2026, y: 710.5, forecast: true, note: '9月25日現在の予想', lbl: '710.5', lblPos: 'right', lblShort: '' }
       ];
       var harvest170 = [
         { x: 2020, y: 722.6 }, { x: 2021, y: 700.7 }, { x: 2022, y: 670.1 }, { x: 2023, y: 661.0 },
         { x: 2024, y: 679.2 }, { x: 2025, y: 746.8 },
-        { x: 2026, y: 740.6, forecast: true, note: '9月25日現在の予想', lbl: '740.6', lblPos: 'right' }
+        { x: 2026, y: 740.6, forecast: true, note: '9月25日現在の予想', lbl: '740.6', lblPos: 'right', lblShort: '' }
       ];
       // 主食用米等の需要実績（玄米、万t）。x年は「x年7月〜x+1年6月」。
       var demand = [
@@ -533,13 +534,13 @@
       // 農林水産省 需要トレンド試算（2022年12月 基本法検証部会）
       var maffTrend = [
         { x: 2020, y: 704, note: '需要実績' },
-        { x: 2040, y: 493, forecast: true, note: 'トレンド試算', lbl: '493', lblPos: 'right' }
+        { x: 2040, y: 493, forecast: true, note: 'トレンド試算', lbl: '493', lblPos: 'right', lblShort: '493' }
       ];
       // 全米販「米穀流通2040ビジョン」2040年推計
       var zenbeihan = [
-        { x: 2040, y: 722, forecast: true, note: '野心的シナリオ・国内需要（輸出含む）', lbl: '722 野心的シナリオの需要（輸出含む）', lblPos: 'left' },
-        { x: 2040, y: 375, forecast: true, note: '現実的シナリオ・国内需要', lbl: '375 需要（現実的シナリオ）', lblPos: 'left-up' },
-        { x: 2040, y: 363, forecast: true, note: '現実的シナリオ・生産可能量', lbl: '363 生産可能量（現実的シナリオ）', lblPos: 'left-down' }
+        { x: 2040, y: 722, forecast: true, note: '野心的シナリオ・国内需要（輸出含む）', lbl: '722 野心的シナリオの需要（輸出含む）', lblPos: 'left', lblShort: '722' },
+        { x: 2040, y: 375, forecast: true, note: '現実的シナリオ・国内需要', lbl: '375 需要（現実的シナリオ）', lblPos: 'left-up', lblShort: '375' },
+        { x: 2040, y: 363, forecast: true, note: '現実的シナリオ・生産可能量', lbl: '363 生産可能量（現実的シナリオ）', lblPos: 'left-down', lblShort: '363' }
       ];
 
       var RANGES = {
@@ -625,15 +626,17 @@
         afterDatasetsDraw: function (chart) {
           var ctx = chart.ctx;
           var xs = chart.scales.x;
+          var compact = chart.width < 640; // 狭い画面では短いラベルのみ
           ctx.save();
-          ctx.font = '600 12px ' + FONT;
+          ctx.font = '600 ' + (compact ? 11 : 12) + 'px ' + FONT;
           ctx.fillStyle = T.textSecondary;
           ctx.textBaseline = 'middle';
           chart.data.datasets.forEach(function (ds, di) {
             if (!chart.isDatasetVisible(di)) { return; }
             var meta = chart.getDatasetMeta(di);
             ds.data.forEach(function (pt, i) {
-              if (!pt.lbl) { return; }
+              var text = compact ? pt.lblShort : pt.lbl;
+              if (!text) { return; }
               if (pt.x < xs.min || pt.x > xs.max) { return; }
               var el = meta.data[i];
               if (!el) { return; }
@@ -647,7 +650,7 @@
                 case 'bottom': tx = px; ty = py + 13; ctx.textAlign = 'center'; break;
                 default: break;
               }
-              ctx.fillText(pt.lbl, tx, ty);
+              ctx.fillText(text, tx, ty);
             });
           });
           ctx.restore();
