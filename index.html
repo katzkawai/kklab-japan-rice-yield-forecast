@@ -150,7 +150,12 @@
     tbody tr:hover td { background-color: var(--surface-2); }
     td.year { white-space: nowrap; font-weight: 600; }
     .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    td.note { min-width: 16rem; font-size: 0.86rem; color: var(--text-secondary); }
+    td.note { min-width: 15rem; font-size: 0.85rem; color: var(--text-secondary); }
+    table.tbl-compact { font-size: 0.86rem; }
+    table.tbl-compact th, table.tbl-compact td { padding: 0.55rem 0.6rem; }
+    td.src { font-weight: 600; min-width: 11rem; }
+    td.src .small { font-weight: 400; display: block; }
+    td.ind { min-width: 10rem; }
     tfoot td, .table-note { font-size: 0.8rem; color: var(--text-muted); }
     .badge {
       display: inline-block; padding: 0.1rem 0.45rem; font-size: 0.72rem; font-weight: 600; border-radius: 4px; margin-left: 0.35rem; vertical-align: middle;
@@ -276,12 +281,12 @@
         農林水産省の作物統計調査（水稲の収穫量）は、2025年産（令和7年産）から主たる公表基準を、従来の「ふるい目幅1.70mm」から、実際の出荷実態に近い「生産者が使用しているふるい目幅（1.80〜1.90mm）」に切り替えました。1.70mmベースの数値も「生産者ふるい下米を含む収穫量」として併記され、過去の年産についても両基準の数値が累年データとして公表されています。本ページでは両基準を併記します。
       </p>
       <div class="table-container">
-        <table>
+        <table class="tbl-compact">
           <thead>
             <tr>
               <th>年産</th>
               <th class="num">主食用<br>作付面積（万ha）</th>
-              <th class="num">10a当たり収量（kg）<br>生産者基準／1.70mm</th>
+              <th class="num">単収（kg/10a）<br>生産者基準／1.70mm</th>
               <th class="num">収穫量（万t）<br>生産者基準</th>
               <th class="num">収穫量（万t）<br>1.70mm</th>
               <th class="num">作況<br>単収指数</th>
@@ -427,15 +432,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td class="year">農林水産省<br><span class="small">基本法検証部会（2022年12月）</span></td><td>主食用米の需要量</td><td class="num">704万t</td><td class="num">493万t</td><td class="num">▲211万t（▲30%）</td></tr>
-            <tr><td class="year">同</td><td>主食用米の作付面積</td><td class="num">137万ha</td><td class="num">96万ha</td><td class="num">▲41万ha</td></tr>
-            <tr><td class="year">同</td><td>水田面積（トレンド）</td><td class="num">225万ha</td><td class="num">203万ha</td><td class="num">100万ha超が主食用米以外へ</td></tr>
-            <tr><td class="year">全米販・日本総研<br><span class="small">「米穀流通2040ビジョン」現実的シナリオ（2024年6月公表）</span></td><td>国内需要量（独自推計）</td><td class="num">636.6万t</td><td class="num">375万t</td><td class="num">▲41%</td></tr>
-            <tr><td class="year">同</td><td>生産可能量</td><td class="num">—</td><td class="num">363万t</td><td class="num">2020年比 ▲50%</td></tr>
-            <tr><td class="year">同</td><td>コメの基幹的従事者</td><td class="num">85万人</td><td class="num">30万人程度</td><td class="num">▲65%</td></tr>
-            <tr><td class="year">同 野心的シナリオ</td><td>国内需要量（輸出仕向けを含む）</td><td class="num">—</td><td class="num">722万t</td><td class="num">2020年比 +13.4%</td></tr>
-            <tr><td class="year">同</td><td>輸出量（めざすべき最大量）</td><td class="num">5.4万t（2022年）</td><td class="num">343万t</td><td class="num">—</td></tr>
-            <tr><td class="year">同</td><td>米穀市場規模</td><td class="num">5.06兆円</td><td class="num">5.97兆円</td><td class="num">+18.0%</td></tr>
+            <tr><td class="src">農林水産省<br><span class="small">基本法検証部会（2022年12月）</span></td><td class="ind">主食用米の需要量</td><td class="num">704万t</td><td class="num">493万t</td><td class="num">▲211万t（▲30%）</td></tr>
+            <tr><td class="src">同</td><td class="ind">主食用米の作付面積</td><td class="num">137万ha</td><td class="num">96万ha</td><td class="num">▲41万ha</td></tr>
+            <tr><td class="src">同</td><td class="ind">水田面積（トレンド）</td><td class="num">225万ha</td><td class="num">203万ha</td><td class="num">100万ha超が主食用米以外へ</td></tr>
+            <tr><td class="src">全米販・日本総研<br><span class="small">「米穀流通2040ビジョン」現実的シナリオ（2024年6月公表）</span></td><td class="ind">国内需要量（独自推計）</td><td class="num">636.6万t</td><td class="num">375万t</td><td class="num">▲41%</td></tr>
+            <tr><td class="src">同</td><td class="ind">生産可能量</td><td class="num">—</td><td class="num">363万t</td><td class="num">2020年比 ▲50%</td></tr>
+            <tr><td class="src">同</td><td class="ind">コメの基幹的従事者</td><td class="num">85万人</td><td class="num">30万人程度</td><td class="num">▲65%</td></tr>
+            <tr><td class="src">同 野心的シナリオ</td><td class="ind">国内需要量（輸出仕向けを含む）</td><td class="num">—</td><td class="num">722万t</td><td class="num">2020年比 +13.4%</td></tr>
+            <tr><td class="src">同</td><td class="ind">輸出量（めざすべき最大量）</td><td class="num">5.4万t（2022年）</td><td class="num">343万t</td><td class="num">—</td></tr>
+            <tr><td class="src">同</td><td class="ind">米穀市場規模</td><td class="num">5.06兆円</td><td class="num">5.97兆円</td><td class="num">+18.0%</td></tr>
           </tbody>
         </table>
       </div>
@@ -697,6 +702,7 @@
               max: RANGES.all.xmax,
               ticks: {
                 stepSize: RANGES.all.step,
+                includeBounds: false,
                 maxRotation: 0,
                 color: T.textMuted,
                 font: { size: 12, family: FONT },
