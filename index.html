@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本のコメ（主食用米）収穫量の推移と将来予測</title>
+  <meta name="description" content="農林水産省の作物統計調査（2020〜2026年産）に基づく主食用米の収穫量・需要・在庫・価格の推移と、2040年に向けた農林水産省・全米販の中長期試算を1ページに整理。">
+  <meta property="og:title" content="日本のコメ（主食用米）収穫量の推移と将来予測">
+  <meta property="og:description" content="2026年産の予想収穫量は710.5万t（生産者ふるい目幅ベース）。需要見通し693〜711万tを上回る高水準が2年続き、民間在庫は243万tへ。2040年の需要は493万t（農水省試算）、生産可能量は363万t（全米販推計）。">
+  <meta property="og:type" content="article">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f9f9f7;
+      --surface: #fcfcfb;
+      --surface-2: #f1f0ec;
+      --text-primary: #0b0b0b;
+      --text-secondary: #52514e;
+      --text-muted: #898781;
+      --grid: #e1e0d9;
+      --axis: #c3c2b7;
+      --border: rgba(11, 11, 11, 0.10);
+      --series-1: #2a78d6;
+      --series-2: #eb6834;
+      --series-3: #1baf7a;
+      --series-4: #eda100;
+      --accent: #2a78d6;
+      --accent-ink: #ffffff;
+      --chip-forecast-bg: #cde2fb;
+      --chip-forecast-ink: #104281;
+      --chip-projection-bg: #efe4c7;
+      --chip-projection-ink: #5a4300;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --page: #0d0d0d;
+        --surface: #1a1a19;
+        --surface-2: #222220;
+        --text-primary: #f0efec;
+        --text-secondary: #c3c2b7;
+        --text-muted: #898781;
+        --grid: #2c2c2a;
+        --axis: #383835;
+        --border: rgba(255, 255, 255, 0.10);
+        --series-1: #3987e5;
+        --series-2: #d95926;
+        --series-3: #199e70;
+        --series-4: #c98500;
+        --accent: #3987e5;
+        --accent-ink: #0b0b0b;
+        --chip-forecast-bg: #184f95;
+        --chip-forecast-ink: #e4eefb;
+        --chip-projection-bg: #4a3a0a;
+        --chip-projection-ink: #f3e6c8;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #222220;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+      --accent: #3987e5;
+      --accent-ink: #0b0b0b;
+      --chip-forecast-bg: #184f95;
+      --chip-forecast-ink: #e4eefb;
+      --chip-projection-bg: #4a3a0a;
+      --chip-projection-ink: #f3e6c8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background-color: var(--page);
+      color: var(--text-primary);
+      line-height: 1.75;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 980px; margin: 0 auto; }
+    header { margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+    header h1 { font-size: 1.85rem; font-weight: 700; line-height: 1.35; margin-bottom: 0.5rem; }
+    header .lead { color: var(--text-secondary); font-size: 0.98rem; }
+    header .meta { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.5rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .card h2 {
+      font-size: 1.3rem;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+      padding-left: 0.75rem;
+      border-left: 4px solid var(--accent);
+    }
+    .card h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+    .card p { color: var(--text-primary); }
+    .muted { color: var(--text-secondary); font-size: 0.86rem; }
+    .small { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* KPI row */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; margin-bottom: 1.75rem; }
+    .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+    .kpi-label { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; min-height: 2.6em; }
+    .kpi-value { font-size: 1.7rem; font-weight: 600; line-height: 1.25; margin-top: 0.35rem; letter-spacing: -0.01em; }
+    .kpi-value .unit { font-size: 0.95rem; font-weight: 600; margin-left: 0.15em; color: var(--text-secondary); }
+    .kpi-delta { font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem; }
+    .kpi-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.5; }
+
+    /* chart */
+    .chart-controls { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .btn {
+      padding: 0.42rem 0.85rem;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-primary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      font-family: inherit;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    .chart-wrapper { position: relative; height: 460px; width: 100%; margin-top: 0.5rem; }
+    .chart-fallback { display: none; padding: 1rem; color: var(--text-secondary); }
+    .chart-notes { margin-top: 0.85rem; padding-left: 1.1rem; }
+    .chart-notes li { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    details { margin-top: 0.9rem; }
+    summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); }
+
+    /* tables */
+    .table-container { overflow-x: auto; margin-top: 0.75rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 0.65rem 0.8rem; text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+    th { background-color: var(--surface-2); font-weight: 700; color: var(--text-secondary); white-space: nowrap; font-size: 0.82rem; line-height: 1.4; }
+    tbody tr:hover td { background-color: var(--surface-2); }
+    td.year { white-space: nowrap; font-weight: 600; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.note { min-width: 16rem; font-size: 0.86rem; color: var(--text-secondary); }
+    tfoot td, .table-note { font-size: 0.8rem; color: var(--text-muted); }
+    .badge {
+      display: inline-block; padding: 0.1rem 0.45rem; font-size: 0.72rem; font-weight: 600; border-radius: 4px; margin-left: 0.35rem; vertical-align: middle;
+    }
+    .badge-forecast { background-color: var(--chip-forecast-bg); color: var(--chip-forecast-ink); }
+    .badge-projection { background-color: var(--chip-projection-bg); color: var(--chip-projection-ink); }
+
+    ul.analysis-list { padding-left: 1.2rem; margin-top: 0.75rem; }
+    ul.analysis-list li { margin-bottom: 0.9rem; }
+    ul.analysis-list li strong { display: block; margin-bottom: 0.15rem; }
+    .summary-box {
+      background-color: var(--surface-2);
+      border-left: 4px solid var(--text-secondary);
+      padding: 1.1rem 1.4rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 0.75rem;
+    }
+    .summary-box p + p { margin-top: 0.75rem; }
+    footer { color: var(--text-muted); font-size: 0.82rem; margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+    footer ol { padding-left: 1.3rem; margin-top: 0.5rem; }
+    footer li { margin-bottom: 0.35rem; }
+    a { color: var(--accent); }
+
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) {
+      body { padding: 1.25rem 1rem; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .chart-wrapper { height: 360px; }
+      header h1 { font-size: 1.4rem; }
+      .card { padding: 1.2rem; }
+      th, td { padding: 0.55rem 0.6rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>日本のコメ（主食用米）収穫量の推移と将来予測</h1>
+      <p class="lead">農林水産省「作物統計調査」（2020〜2026年産）に基づく収穫量・需要・在庫・価格の推移と、2040年に向けた需要・生産力の中長期試算（農林水産省、全国米穀販売事業共済協同組合）を1ページに整理しています。</p>
+      <p class="meta">最終更新：2026年10月16日｜2026年産は9月25日現在の予想収穫量（2026年10月13日公表、概数値）。収穫量はいずれも主食用（水稲）。</p>
+    </header>
+
+    <!-- 主要指標 -->
+    <section class="kpi-grid" aria-label="主要指標">
+      <div class="kpi">
+        <div class="kpi-label">2026年産 予想収穫量（主食用・生産者ふるい目幅ベース）</div>
+        <div class="kpi-value">710.5<span class="unit">万t</span></div>
+        <div class="kpi-delta">前年産比 ▲7.6万t（▲1.1%）</div>
+        <div class="kpi-sub">ふるい目幅1.70mmベースでは740.6万t（▲6.2万t）</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">2026/27年 需要見通し（主食用米等・玄米ベース）</div>
+        <div class="kpi-value">693〜711<span class="unit">万t</span></div>
+        <div class="kpi-delta">2025/26年の需要実績は683万t（速報値）</div>
+        <div class="kpi-sub">基本指針（2026年7月）の2026年産生産量見通しは711万t</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">民間在庫量（2026年6月末・出荷と販売段階の計）</div>
+        <div class="kpi-value">243<span class="unit">万t</span></div>
+        <div class="kpi-delta">前年同月比 +88万t（2025年6月末は155万t）</div>
+        <div class="kpi-sub">2027年6月末は242〜260万tの見通し（上位値なら2004年の調査開始以来最大）</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">2040年の試算値（需要量／生産可能量）</div>
+        <div class="kpi-value">493<span class="unit">万t</span> ／ 363<span class="unit">万t</span></div>
+        <div class="kpi-delta">農林水産省の需要トレンド試算／全米販の生産可能量推計</div>
+        <div class="kpi-sub">2020年の需要実績704万tからそれぞれ約30%減、約50%減</div>
+      </div>
+    </section>
+
+    <!-- グラフ -->
+    <section class="card">
+      <h2>主食用米の収穫量・需要量の推移と2040年試算（2020〜2040年）</h2>
+      <div class="chart-controls" role="group" aria-label="表示期間">
+        <button class="btn" type="button" data-range="all" aria-pressed="true">全期間（2020〜2040年）</button>
+        <button class="btn" type="button" data-range="short" aria-pressed="false">実績と予想（2020〜2026年）</button>
+        <button class="btn" type="button" data-range="long" aria-pressed="false">2040年試算との比較（2024〜2040年）</button>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="riceYieldChart" role="img" aria-label="主食用米の収穫量（生産者ふるい目幅ベースと1.70mmベース）、需要実績、農林水産省の2040年需要トレンド試算、全米販の2040年推計を示す折れ線グラフ。数値は下の表に掲載。"></canvas>
+        <div class="chart-fallback" id="chartFallback">グラフを読み込めませんでした。数値は下の「グラフの数値を表で見る」をご覧ください。</div>
+      </div>
+      <ul class="chart-notes">
+        <li>実線は実績、点線は予想・試算。2026年産は9月25日現在の予想収穫量（中空マーカー）。単位はいずれも万トン（玄米）。</li>
+        <li>需要実績は各年産の7月から翌年6月までの主食用米等の需要量（2025/26年は速報値）。</li>
+        <li>農林水産省の2040年試算は、2020年の需要実績（704万t）と2040年の試算値（493万t）の2点を直線で結んだもので、中間年の公表値はありません。</li>
+        <li>全米販「米穀流通2040ビジョン」の推計は2040年の値のみ公表されており、需要量の定義・算出方法が農林水産省の需要実績と異なるため線で結んでいません。</li>
+      </ul>
+      <details>
+        <summary>グラフの数値を表で見る</summary>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>年</th>
+                <th class="num">収穫量<br>生産者ふるい目幅（万t）</th>
+                <th class="num">収穫量<br>1.70mm（万t）</th>
+                <th class="num">需要実績<br>（万t）</th>
+                <th class="num">農水省<br>需要トレンド試算（万t）</th>
+                <th class="num">全米販<br>2040年推計（万t）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="year">2020</td><td class="num">690.6</td><td class="num">722.6</td><td class="num">704</td><td class="num">704（実績）</td><td class="num">—</td></tr>
+              <tr><td class="year">2021</td><td class="num">669.8</td><td class="num">700.7</td><td class="num">702</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td class="year">2022</td><td class="num">639.0</td><td class="num">670.1</td><td class="num">691</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td class="year">2023</td><td class="num">639.0</td><td class="num">661.0</td><td class="num">705</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td class="year">2024</td><td class="num">651.9</td><td class="num">679.2</td><td class="num">713</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td class="year">2025</td><td class="num">718.1</td><td class="num">746.8</td><td class="num">683（速報）</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td class="year">2026（予想）</td><td class="num">710.5</td><td class="num">740.6</td><td class="num">693〜711（見通し）</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td class="year">2040（試算）</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">493</td><td class="num">需要375／生産可能量363<br>野心的シナリオの需要722（輸出含む）</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <!-- 1. 短期動向 -->
+    <section class="card">
+      <h2>1. 収穫量の実績と2026年産の見通し（2020〜2026年産）</h2>
+      <p>
+        農林水産省の作物統計調査（水稲の収穫量）は、2025年産（令和7年産）から主たる公表基準を、従来の「ふるい目幅1.70mm」から、実際の出荷実態に近い「生産者が使用しているふるい目幅（1.80〜1.90mm）」に切り替えました。1.70mmベースの数値も「生産者ふるい下米を含む収穫量」として併記され、過去の年産についても両基準の数値が累年データとして公表されています。本ページでは両基準を併記します。
+      </p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>年産</th>
+              <th class="num">主食用<br>作付面積（万ha）</th>
+              <th class="num">10a当たり収量（kg）<br>生産者基準／1.70mm</th>
+              <th class="num">収穫量（万t）<br>生産者基準</th>
+              <th class="num">収穫量（万t）<br>1.70mm</th>
+              <th class="num">作況<br>単収指数</th>
+              <th>需給・生産の主な背景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="year">2020年（令和2年）</td>
+              <td class="num">136.6</td>
+              <td class="num">508／531</td>
+              <td class="num">690.6</td>
+              <td class="num">722.6</td>
+              <td class="num">99</td>
+              <td class="note">コロナ禍で外食需要が減少。在庫が積み上がり、米価は下落</td>
+            </tr>
+            <tr>
+              <td class="year">2021年（令和3年）</td>
+              <td class="num">130.3</td>
+              <td class="num">515／539</td>
+              <td class="num">669.8</td>
+              <td class="num">700.7</td>
+              <td class="num">100</td>
+              <td class="note">過剰在庫を受け、主食用から飼料用米・備蓄米等への大幅な作付転換（主食用作付面積は▲6.3万ha）</td>
+            </tr>
+            <tr>
+              <td class="year">2022年（令和4年）</td>
+              <td class="num">125.1</td>
+              <td class="num">511／536</td>
+              <td class="num">639.0</td>
+              <td class="num">670.1</td>
+              <td class="num">100</td>
+              <td class="note">作付面積の縮小が続き、収穫量は670万t台へ</td>
+            </tr>
+            <tr>
+              <td class="year">2023年（令和5年）</td>
+              <td class="num">124.2</td>
+              <td class="num">515／533</td>
+              <td class="num">639.0</td>
+              <td class="num">661.0</td>
+              <td class="num">101</td>
+              <td class="note">猛暑による高温障害で一等米比率と精米歩留まりが低下。需要は増加に転じ、2024年夏の端境期に品薄へ</td>
+            </tr>
+            <tr>
+              <td class="year">2024年（令和6年）</td>
+              <td class="num">125.9</td>
+              <td class="num">519／540</td>
+              <td class="num">651.9</td>
+              <td class="num">679.2</td>
+              <td class="num">101</td>
+              <td class="note">1.70mmベースで前年比+18.2万tも、集荷競争の激化で価格が高騰。2024年6月末の民間在庫は153万tと低水準</td>
+            </tr>
+            <tr>
+              <td class="year">2025年（令和7年）</td>
+              <td class="num">136.7</td>
+              <td class="num">526／547</td>
+              <td class="num">718.1</td>
+              <td class="num">746.8</td>
+              <td class="num">102</td>
+              <td class="note">高米価を受けた主食用への作付回帰（+10.8万ha）で大幅増産。2017年産以来の高水準</td>
+            </tr>
+            <tr>
+              <td class="year">2026年（令和8年）<span class="badge badge-forecast">予想</span></td>
+              <td class="num">136.0</td>
+              <td class="num">524／546</td>
+              <td class="num"><strong>710.5</strong></td>
+              <td class="num"><strong>740.6</strong></td>
+              <td class="num">102</td>
+              <td class="note">9月25日現在の予想。備蓄米等への転換で作付面積は▲0.7万ha、長雨・日照不足で単収は▲2kg。需要見通し（693〜711万t）を上回る水準</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note" style="margin-top:0.6rem;">
+        作況単収指数は、10a当たり収量の「前年産までの5か年中3か年平均（最高・最低を除く）」に対する比率。2020年産以降は生産者ふるい目幅ベースで算出されており、従来の作況指数に代わる指標として2025年産から導入された。2026年産の数値は概数値。
+      </p>
+      <ul class="analysis-list">
+        <li>
+          <strong>2023〜2024年のひっ迫から、2025〜2026年の緩和へ</strong>
+          2023年産は高温障害で精米歩留まりが低下して実質的な供給が細る一方、需要は2023/24年705万t、2024/25年713万tと増加に転じ、2024年6月末の民間在庫は153万tまで落ち込みました。米価高騰を受けて2025年産では主食用への作付回帰が進み、収穫量は746.8万t（1.70mm）、718.1万t（生産者基準）へ急増。2026年6月末の民間在庫は243万tと前年から88万t増え、需給は緩和局面に入っています。
+        </li>
+        <li>
+          <strong>2026年産は前年並みの高水準で、需給の緩みが続く見通し</strong>
+          1.70mmベースの予想収穫量740.6万tは、基本指針（2026年7月）が示した2026年産生産量の見通し711万tを約30万t上回り、2027年6月末の民間在庫は242〜260万tと見込まれています。ただし今回の予想には、豪雨・地震等の災害や9月の長雨・日照不足による刈取り調査の遅れが反映されておらず、次回公表（10月25日現在、2026年11月中旬予定）で下方修正される可能性があります。
+        </li>
+      </ul>
+    </section>
+
+    <!-- 2. 需給と価格 -->
+    <section class="card">
+      <h2>2. 需給バランスと価格の推移（2022〜2026年産）</h2>
+      <p>生産量、需要実績、翌年6月末の民間在庫、相対取引価格を年産ごとに並べると、2024年産を中心とした「在庫の枯渇と価格高騰」から、2025年産以降の「在庫の回復と価格の軟化」への転換が読み取れます。</p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>年産</th>
+              <th class="num">生産量（万t）<br>生産者基準</th>
+              <th class="num">需要実績（万t）<br>当該年産の7月〜翌6月</th>
+              <th class="num">翌年6月末<br>民間在庫（万t）</th>
+              <th class="num">相対取引価格<br>年産平均（円/玄米60kg）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="year">2022年産（令和4年）</td><td class="num">639.0</td><td class="num">691</td><td class="num">197</td><td class="num">13,844</td></tr>
+            <tr><td class="year">2023年産（令和5年）</td><td class="num">639.0</td><td class="num">705</td><td class="num">153</td><td class="num">15,315</td></tr>
+            <tr><td class="year">2024年産（令和6年）</td><td class="num">651.9</td><td class="num">713</td><td class="num">155</td><td class="num">25,179</td></tr>
+            <tr><td class="year">2025年産（令和7年）</td><td class="num">718.1</td><td class="num">683（速報）</td><td class="num">243</td><td class="num">35,573（速報）</td></tr>
+            <tr><td class="year">2026年産（令和8年）<span class="badge badge-forecast">予想</span></td><td class="num">710.5（予想）</td><td class="num">693〜711（見通し）</td><td class="num">242〜260（見通し）</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note" style="margin-top:0.6rem;">
+        需要実績は玄米ベースの主食用米等需要量（前年6月末在庫＋当年産生産量＋政府備蓄米供給量−当年6月末在庫）。2025/26年の需要実績は2026年11月末までに見直される予定。相対取引価格は出回りから翌年10月までの全銘柄平均で、2025年産は2026年6月までの速報値。
+      </p>
+      <ul class="analysis-list">
+        <li>
+          <strong>価格はピークを越え、軟化へ</strong>
+          相対取引価格の年産平均は、2023年産の15,315円から2024年産25,179円（+64%）、2025年産35,573円（+41%）へ2年連続で大幅に上昇しました。ただし月別では2025年産の価格は2025年11月の36,493円を頂点に、2026年6月には31,305円まで下がっており、在庫の回復とともに価格調整の局面に入っています。
+        </li>
+        <li>
+          <strong>需要は価格高騰で減少に転じた</strong>
+          2025/26年の需要実績（速報）は683万tと、前年の713万tから30万t減少しました。農林水産省は2026/27年の需要見通しを、1人当たり消費量の直近5年平均（49.9kg）と最大値（50.7kg）にインバウンド需要を加えた693〜711万tの幅で設定しています。
+        </li>
+      </ul>
+    </section>
+
+    <!-- 3. 中長期シナリオ -->
+    <section class="card">
+      <h2>3. 2040年に向けた中長期シナリオ</h2>
+      <p>
+        長期的なコメの需給は、<strong>「人口減少・少子高齢化による需要減」</strong>と<strong>「稲作農家の高齢化・離農による生産力低下」</strong>の2つの軸で試算されています。代表的な試算は次の2つです。
+      </p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>試算</th>
+              <th>指標</th>
+              <th class="num">2020年</th>
+              <th class="num">2040年</th>
+              <th class="num">変化</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="year">農林水産省<br><span class="small">基本法検証部会（2022年12月）</span></td><td>主食用米の需要量</td><td class="num">704万t</td><td class="num">493万t</td><td class="num">▲211万t（▲30%）</td></tr>
+            <tr><td class="year">同</td><td>主食用米の作付面積</td><td class="num">137万ha</td><td class="num">96万ha</td><td class="num">▲41万ha</td></tr>
+            <tr><td class="year">同</td><td>水田面積（トレンド）</td><td class="num">225万ha</td><td class="num">203万ha</td><td class="num">100万ha超が主食用米以外へ</td></tr>
+            <tr><td class="year">全米販・日本総研<br><span class="small">「米穀流通2040ビジョン」現実的シナリオ（2024年6月公表）</span></td><td>国内需要量</td><td class="num">—</td><td class="num">375万t</td><td class="num">2020年比 ▲41%</td></tr>
+            <tr><td class="year">同</td><td>生産可能量</td><td class="num">—</td><td class="num">363万t</td><td class="num">2020年比 ▲50%</td></tr>
+            <tr><td class="year">同</td><td>コメの基幹的従事者</td><td class="num">85万人</td><td class="num">30万人程度</td><td class="num">▲65%</td></tr>
+            <tr><td class="year">同 野心的シナリオ</td><td>国内需要量（輸出仕向けを含む）</td><td class="num">—</td><td class="num">722万t</td><td class="num">2020年比 +13.4%</td></tr>
+            <tr><td class="year">同</td><td>輸出量（めざすべき最大量）</td><td class="num">5.4万t（2022年）</td><td class="num">343万t</td><td class="num">—</td></tr>
+            <tr><td class="year">同</td><td>米穀市場規模</td><td class="num">5.06兆円</td><td class="num">5.97兆円</td><td class="num">+18.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="analysis-list">
+        <li>
+          <strong>農林水産省の需要トレンド試算（2040年：493万t）</strong>
+          2022年12月の食料・農業・農村政策審議会 基本法検証部会で示された試算です。2020年の需要実績704万tに、2040年までの人口減少率（1億2,615万人から約2,000万人減、▲15.9%）と、1998〜2021年の1人当たり消費量の減少トレンドを乗じて算出し、約3割の減少となります。「需要に応じた生産」を前提とすると主食用米の作付面積は137万haから96万haへ縮小し、トレンドで203万haと見込まれる水田面積のうち100万ha超が主食用米以外の用途に回る計算です。
+        </li>
+        <li>
+          <strong>全米販「米穀流通2040ビジョン」の現実的シナリオ（2040年：生産可能量363万t）</strong>
+          全国米穀販売事業共済協同組合（全米販）が株式会社日本総合研究所と策定し、2024年6月に公表しました。コメの基幹的従事者が高齢化による離農と新規就農者の減少で85万人（2020年）から30万人程度（2040年）へ減ると、生産可能量は363万t（2020年比▲50%）まで低下します。需要も375万t（同▲41%）へ縮小しますが、生産の落ち込みの方が速く、2038年頃には国内の純食料需要を国産だけでは満たせなくなる可能性があると警告しています。流通量の減少により、米穀卸の事業は2040年に営業赤字に転落すると試算されています。
+        </li>
+        <li>
+          <strong>野心的シナリオ：輸出と需要創出で生産基盤を維持</strong>
+          需要拡大（多角的な需要創出と輸出）、生産支援（担い手の確保、出口の開拓）、流通改革を実行した場合、2040年の国内需要は輸出仕向けを含めて722万t（2020年比+13.4%）、米穀市場規模は5.97兆円（同+18.0%）をめざす姿が描かれています。輸出は最大343万t・2.7兆円（2022年実績は5.4万t・613億円）を到達イメージとし、需要に見合う生産が実現すれば生産量は700万t超を回復する勘定です。
+        </li>
+        <li>
+          <strong>試算を読む際の注意</strong>
+          2つの試算は定義と前提が異なります。農林水産省の試算は玄米ベースの主食用米需要量を単純トレンドで延長したもので、全米販の試算は独自の需要・生産モデルによる推計です。いずれも2030年・2035年といった中間年の公表値はないため、本ページのグラフでは2020年と2040年の値のみを示しています。
+        </li>
+      </ul>
+    </section>
+
+    <!-- まとめ -->
+    <section class="card">
+      <h2>4. まとめ</h2>
+      <div class="summary-box">
+        <p>
+          日本の主食用米の収穫量は、2023年産の661.0万t（1.70mmベース）を底に、2025年産746.8万t、2026年産（予想）740.6万tへと回復した。需要見通し（693〜711万t）を上回る生産が2年続き、民間在庫は2026年6月末に243万tまで積み上がり、短期的には「不足と価格高騰」から「余剰と価格調整」の局面へ移っている。
+        </p>
+        <p>
+          一方、中長期では、人口減少によって需要が2040年に493万t（農林水産省試算）ないし375万t（全米販推計）へ縮小するのに対し、生産者の高齢化・離農はそれ以上に速く進み、全米販は2040年の生産可能量を363万tと推計する。2030年代以降の課題は「余剰対策」から「生産基盤の維持と、輸出・加工用途を含めた需要の創出」へと転換する。
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>出典・参考資料</strong>（数値は公表時点のもので、2026年産は概数値。年産は暦年、需要実績は当該年7月〜翌年6月）</p>
+      <ol>
+        <li>農林水産省 統計部「作物統計調査 令和8年産水稲の作付面積及び9月25日現在の予想収穫量」（2026年10月13日公表、累年データを含む）<a href="https://www.maff.go.jp/j/tokei/kouhyou/sakumotu/sakkyou_kome/pdf/suitou_260925.pdf" target="_blank" rel="noopener">PDF</a>／<a href="https://www.maff.go.jp/j/tokei/kouhyou/sakumotu/sakkyou_kome/index.html" target="_blank" rel="noopener">作物統計調査（水陸稲）一覧</a></li>
+        <li>農林水産省「米穀の需給及び価格の安定に関する基本指針」（2026年7月）<a href="https://www.maff.go.jp/j/seisan/keikaku/beikoku_sisin/shishin/shishin_20260728.pdf" target="_blank" rel="noopener">PDF</a></li>
+        <li>農林水産省 農産局「米の需給見通しについて」食料・農業・農村政策審議会 食糧部会 参考資料（2026年7月）<a href="https://www.maff.go.jp/j/council/seisaku/syokuryo/20260728/siryo3/sanko1.pdf" target="_blank" rel="noopener">PDF</a></li>
+        <li>農林水産省「食料・農業・農村をめぐる情勢の変化（需要に応じた生産）」食料・農業・農村政策審議会 基本法検証部会 資料3（2022年12月）<a href="https://www.maff.go.jp/j/council/seisaku/kensho/attach/pdf/5siryo-2.pdf" target="_blank" rel="noopener">PDF</a></li>
+        <li>全国米穀販売事業共済協同組合（全米販）「米穀流通2040ビジョン」（2024年6月公表、株式会社日本総合研究所と共同作成）<a href="https://www.zenbeihan.com/info/press/pdf/240612vision2040_02.pdf" target="_blank" rel="noopener">概要版PDF</a>／<a href="https://www.zenbeihan.com/files/pdf/info/press/common/240612vision2040_01.pdf" target="_blank" rel="noopener">本編PDF</a></li>
+      </ol>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var FONT = 'system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif';
+
+      function cssVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      }
+      function tokens() {
+        return {
+          surface: cssVar('--surface'),
+          textPrimary: cssVar('--text-primary'),
+          textSecondary: cssVar('--text-secondary'),
+          textMuted: cssVar('--text-muted'),
+          grid: cssVar('--grid'),
+          axis: cssVar('--axis'),
+          s1: cssVar('--series-1'),
+          s2: cssVar('--series-2'),
+          s3: cssVar('--series-3'),
+          s4: cssVar('--series-4')
+        };
+      }
+
+      // 農林水産省「作物統計調査」累年データ（主食用、万t）。2026年は9月25日現在の予想。
+      var harvestProducer = [
+        { x: 2020, y: 690.6 }, { x: 2021, y: 669.8 }, { x: 2022, y: 639.0 }, { x: 2023, y: 639.0 },
+        { x: 2024, y: 651.9 }, { x: 2025, y: 718.1 },
+        { x: 2026, y: 710.5, forecast: true, note: '9月25日現在の予想', lbl: '710.5', lblPos: 'right' }
+      ];
+      var harvest170 = [
+        { x: 2020, y: 722.6 }, { x: 2021, y: 700.7 }, { x: 2022, y: 670.1 }, { x: 2023, y: 661.0 },
+        { x: 2024, y: 679.2 }, { x: 2025, y: 746.8 },
+        { x: 2026, y: 740.6, forecast: true, note: '9月25日現在の予想', lbl: '740.6', lblPos: 'right' }
+      ];
+      // 主食用米等の需要実績（玄米、万t）。x年は「x年7月〜x+1年6月」。
+      var demand = [
+        { x: 2020, y: 704 }, { x: 2021, y: 702 }, { x: 2022, y: 691 }, { x: 2023, y: 705 },
+        { x: 2024, y: 713 }, { x: 2025, y: 683, note: '速報値' }
+      ];
+      // 農林水産省 需要トレンド試算（2022年12月 基本法検証部会）
+      var maffTrend = [
+        { x: 2020, y: 704, note: '需要実績' },
+        { x: 2040, y: 493, forecast: true, note: 'トレンド試算', lbl: '493', lblPos: 'right' }
+      ];
+      // 全米販「米穀流通2040ビジョン」2040年推計
+      var zenbeihan = [
+        { x: 2040, y: 722, forecast: true, note: '野心的シナリオ・国内需要（輸出含む）', lbl: '722 野心的シナリオの需要（輸出含む）', lblPos: 'left' },
+        { x: 2040, y: 375, forecast: true, note: '現実的シナリオ・国内需要', lbl: '375 需要（現実的シナリオ）', lblPos: 'left-up' },
+        { x: 2040, y: 363, forecast: true, note: '現実的シナリオ・生産可能量', lbl: '363 生産可能量（現実的シナリオ）', lblPos: 'left-down' }
+      ];
+
+      var RANGES = {
+        all:   { xmin: 2019.5, xmax: 2041.2, ymin: 300, step: 2 },
+        short: { xmin: 2019.6, xmax: 2026.6, ymin: 600, step: 1 },
+        long:  { xmin: 2023.5, xmax: 2041.2, ymin: 300, step: 2 }
+      };
+
+      var canvas = document.getElementById('riceYieldChart');
+      var fallback = document.getElementById('chartFallback');
+      if (!window.Chart || !canvas) {
+        if (fallback) { fallback.style.display = 'block'; }
+        if (canvas) { canvas.style.display = 'none'; }
+        return;
+      }
+
+      var T = tokens();
+
+      function dashForecast(data) {
+        return function (ctx) {
+          var p = data[ctx.p1DataIndex];
+          return p && p.forecast ? [6, 6] : undefined;
+        };
+      }
+      function pointFill(color) {
+        return function (ctx) { return ctx.raw && ctx.raw.forecast ? T.surface : color; };
+      }
+      function lineDataset(label, data, color) {
+        return {
+          label: label,
+          data: data,
+          borderColor: color,
+          backgroundColor: color,
+          borderWidth: 2,
+          borderJoinStyle: 'round',
+          borderCapStyle: 'round',
+          tension: 0.15,
+          fill: false,
+          spanGaps: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointHitRadius: 14,
+          pointBorderWidth: 2,
+          pointBackgroundColor: pointFill(color),
+          pointBorderColor: function (ctx) { return ctx.raw && ctx.raw.forecast ? color : T.surface; },
+          pointHoverBackgroundColor: color,
+          pointHoverBorderColor: T.surface,
+          segment: { borderDash: dashForecast(data) }
+        };
+      }
+
+      var datasets = [
+        lineDataset('収穫量：生産者ふるい目幅ベース', harvestProducer, T.s1),
+        lineDataset('収穫量：ふるい目幅1.70mmベース', harvest170, T.s2),
+        lineDataset('需要実績（主食用米等）', demand, T.s3),
+        (function () {
+          var d = lineDataset('農水省 需要トレンド試算（2020→2040年）', maffTrend, T.s3);
+          d.borderDash = [6, 6];
+          d.segment = undefined;
+          return d;
+        })(),
+        {
+          label: '全米販「米穀流通2040ビジョン」2040年推計',
+          data: zenbeihan,
+          showLine: false,
+          borderColor: T.s4,
+          backgroundColor: T.s4,
+          pointStyle: 'rectRot',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointHitRadius: 14,
+          pointBorderWidth: 2,
+          pointBackgroundColor: T.s4,
+          pointBorderColor: T.surface,
+          pointHoverBackgroundColor: T.s4,
+          pointHoverBorderColor: T.surface
+        }
+      ];
+
+      // 選択的な直接ラベル（端点と2040年の試算値のみ）
+      var directLabels = {
+        id: 'directLabels',
+        afterDatasetsDraw: function (chart) {
+          var ctx = chart.ctx;
+          var xs = chart.scales.x;
+          ctx.save();
+          ctx.font = '600 12px ' + FONT;
+          ctx.fillStyle = T.textSecondary;
+          ctx.textBaseline = 'middle';
+          chart.data.datasets.forEach(function (ds, di) {
+            if (!chart.isDatasetVisible(di)) { return; }
+            var meta = chart.getDatasetMeta(di);
+            ds.data.forEach(function (pt, i) {
+              if (!pt.lbl) { return; }
+              if (pt.x < xs.min || pt.x > xs.max) { return; }
+              var el = meta.data[i];
+              if (!el) { return; }
+              var px = el.x, py = el.y, tx = px + 10, ty = py;
+              ctx.textAlign = 'left';
+              switch (pt.lblPos) {
+                case 'left': tx = px - 11; ctx.textAlign = 'right'; break;
+                case 'left-up': tx = px - 11; ty = py - 9; ctx.textAlign = 'right'; break;
+                case 'left-down': tx = px - 11; ty = py + 9; ctx.textAlign = 'right'; break;
+                case 'top': tx = px; ty = py - 13; ctx.textAlign = 'center'; break;
+                case 'bottom': tx = px; ty = py + 13; ctx.textAlign = 'center'; break;
+                default: break;
+              }
+              ctx.fillText(pt.lbl, tx, ty);
+            });
+          });
+          ctx.restore();
+        }
+      };
+
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var chart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: { datasets: datasets },
+        plugins: [directLabels],
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: reduceMotion ? false : { duration: 400 },
+          layout: { padding: { right: 36, top: 4 } },
+          interaction: { mode: 'nearest', axis: 'x', intersect: false },
+          plugins: {
+            legend: {
+              position: 'top',
+              align: 'start',
+              labels: { usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14, color: T.textSecondary, font: { size: 12, family: FONT } }
+            },
+            tooltip: {
+              backgroundColor: T.textPrimary,
+              titleColor: T.surface,
+              bodyColor: T.surface,
+              padding: 10,
+              titleFont: { size: 13, family: FONT },
+              bodyFont: { size: 12, family: FONT },
+              usePointStyle: true,
+              boxPadding: 4,
+              callbacks: {
+                title: function (items) {
+                  if (!items.length) { return ''; }
+                  var x = items[0].parsed.x;
+                  return x + '年' + (x <= 2026 ? '産' : '');
+                },
+                label: function (item) {
+                  var raw = item.raw || {};
+                  var name = item.dataset.label || '';
+                  var v = item.parsed.y;
+                  var s = name + '：' + (Number.isInteger(v) ? v : v.toFixed(1)) + ' 万t';
+                  if (raw.note) { s += '（' + raw.note + '）'; }
+                  return s;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              min: RANGES.all.xmin,
+              max: RANGES.all.xmax,
+              ticks: {
+                stepSize: RANGES.all.step,
+                maxRotation: 0,
+                color: T.textMuted,
+                font: { size: 12, family: FONT },
+                callback: function (v) { return Number.isInteger(v) && v >= 2020 && v <= 2040 ? v + '年' : ''; }
+              },
+              grid: { display: false },
+              border: { color: T.axis }
+            },
+            y: {
+              min: RANGES.all.ymin,
+              max: 800,
+              title: { display: true, text: '万トン（玄米）', color: T.textMuted, font: { size: 12, family: FONT } },
+              ticks: { stepSize: 100, color: T.textMuted, font: { size: 12, family: FONT } },
+              grid: { color: T.grid, lineWidth: 1 },
+              border: { display: false }
+            }
+          }
+        }
+      });
+
+      function applyRange(key) {
+        var r = RANGES[key] || RANGES.all;
+        chart.options.scales.x.min = r.xmin;
+        chart.options.scales.x.max = r.xmax;
+        chart.options.scales.x.ticks.stepSize = r.step;
+        chart.options.scales.y.min = r.ymin;
+        chart.update();
+      }
+      var buttons = document.querySelectorAll('.chart-controls .btn');
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          buttons.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+          btn.setAttribute('aria-pressed', 'true');
+          applyRange(btn.getAttribute('data-range'));
+        });
+      });
+
+      // 配色モードが切り替わったらトークンを再取得して再描画
+      function refreshTheme() {
+        T = tokens();
+        var colors = [T.s1, T.s2, T.s3, T.s3, T.s4];
+        chart.data.datasets.forEach(function (ds, i) {
+          ds.borderColor = colors[i];
+          ds.backgroundColor = colors[i];
+          if (ds.showLine === false) {
+            ds.pointBackgroundColor = colors[i];
+            ds.pointBorderColor = T.surface;
+            ds.pointHoverBackgroundColor = colors[i];
+          } else {
+            ds.pointBackgroundColor = pointFill(colors[i]);
+            ds.pointBorderColor = (function (c) { return function (ctx) { return ctx.raw && ctx.raw.forecast ? c : T.surface; }; })(colors[i]);
+            ds.pointHoverBackgroundColor = colors[i];
+          }
+          ds.pointHoverBorderColor = T.surface;
+        });
+        chart.options.plugins.legend.labels.color = T.textSecondary;
+        chart.options.plugins.tooltip.backgroundColor = T.textPrimary;
+        chart.options.plugins.tooltip.titleColor = T.surface;
+        chart.options.plugins.tooltip.bodyColor = T.surface;
+        chart.options.scales.x.ticks.color = T.textMuted;
+        chart.options.scales.x.border.color = T.axis;
+        chart.options.scales.y.ticks.color = T.textMuted;
+        chart.options.scales.y.title.color = T.textMuted;
+        chart.options.scales.y.grid.color = T.grid;
+        chart.update();
+      }
+      if (window.matchMedia) {
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.addEventListener) { mq.addEventListener('change', refreshTheme); }
+        else if (mq.addListener) { mq.addListener(refreshTheme); }
+      }
+    })();
+  </script>
+</body>
+</html>
